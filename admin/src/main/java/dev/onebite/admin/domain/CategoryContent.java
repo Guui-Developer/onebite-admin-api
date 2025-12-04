@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "category_content", schema = "devonebite_dev")
+@Table(name = "category_content")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CategoryContent {
 

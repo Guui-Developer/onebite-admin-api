@@ -1,5 +1,6 @@
 package dev.onebite.admin.domain;
 
+import dev.onebite.admin.domain.global.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -8,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -15,10 +19,11 @@ import java.util.List;
 
 @Getter
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "categories", schema = "devonebite_dev")
+@Table(name = "categories")
 @ToString
-public class Category {
+public class Category extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -54,19 +59,24 @@ public class Category {
     @Column(name = "is_active")
     private Boolean isActive;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "updated_at")
-    private Instant updatedAt;
-
     @Column(name = "deleted_at")
     private Instant deletedAt;
 
-    @OneToMany(mappedBy = "categoryId", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "categoryId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<CategoryContent> categoryContents = new ArrayList<>();
 
+    private Category(String code, String label, CategoryGroup categoryGroup, String iconUrl, String description, Integer displayOrder) {
+        this.code = code;
+        this.label = label;
+        this.categoryGroup = categoryGroup;
+        this.iconUrl = iconUrl;
+        this.description = description;
+        this.displayOrder = displayOrder;
+        this.isActive = true;
+    }
+
+    public static Category of(String code, String label, CategoryGroup categoryGroup, String iconUrl, String description, Integer displayOrder) {
+        return new Category(code, label, categoryGroup, iconUrl, description, displayOrder);
+    }
 }

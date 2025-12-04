@@ -1,5 +1,6 @@
 package dev.onebite.admin.domain;
 
+import dev.onebite.admin.domain.global.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -17,8 +18,8 @@ import java.util.List;
 @Entity
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "category_groups", schema = "devonebite_dev")
-public class CategoryGroup {
+@Table(name = "category_groups")
+public class CategoryGroup extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,12 +43,18 @@ public class CategoryGroup {
     @Column(name = "display_order")
     private Integer displayOrder;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at")
-    private Instant createdAt;
-
-    @OneToMany(mappedBy = "categoryGroup", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "categoryGroup", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<Category> categories = new ArrayList<>();
 
+    private CategoryGroup(String code, String label, String iconUrl, Integer displayOrder) {
+        this.code = code;
+        this.label = label;
+        this.iconUrl = iconUrl;
+        this.displayOrder = displayOrder;
+    }
+
+    public static CategoryGroup of(String code, String label, String iconUrl, Integer displayOrder) {
+        return new CategoryGroup(code, label, iconUrl, displayOrder);
+    }
 }

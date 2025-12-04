@@ -1,5 +1,6 @@
 package dev.onebite.admin.domain;
 
+import dev.onebite.admin.domain.global.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "content_stats")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ContentStats {
+public class ContentStats extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +31,4 @@ public class ContentStats {
     @Column(name = "bookmarks", columnDefinition = "int4 default 0")
     private Integer bookmarks;
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
 }
