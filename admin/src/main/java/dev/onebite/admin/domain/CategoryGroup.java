@@ -1,6 +1,8 @@
 package dev.onebite.admin.domain;
 
 import dev.onebite.admin.domain.global.BaseEntity;
+import dev.onebite.admin.infra.enums.ErrorCode;
+import dev.onebite.admin.persentation.exception.ApplicationException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -48,6 +50,9 @@ public class CategoryGroup extends BaseEntity {
     private List<Category> categories = new ArrayList<>();
 
     private CategoryGroup(String code, String label, String iconUrl, Integer displayOrder) {
+        validateCode(code);
+        validateLabel(label);
+
         this.code = code;
         this.label = label;
         this.iconUrl = iconUrl;
@@ -56,5 +61,38 @@ public class CategoryGroup extends BaseEntity {
 
     public static CategoryGroup of(String code, String label, String iconUrl, Integer displayOrder) {
         return new CategoryGroup(code, label, iconUrl, displayOrder);
+    }
+
+    private void validateCode(String code) {
+        if (code == null || code.isBlank()) {
+            throw new ApplicationException(ErrorCode.VALIDATION_ERROR);
+        }
+        if (code.length() < 2 || code.length() > 20) {
+            throw new ApplicationException(ErrorCode.INVALID_CODE_LENGTH);
+        }
+    }
+
+    private void validateLabel(String label) {
+        if (label == null || label.isBlank()) {
+            throw new ApplicationException(ErrorCode.VALIDATION_ERROR);
+        }
+        if (label.length() < 2 || label.length() > 20) {
+            throw new ApplicationException(ErrorCode.INVALID_CODE_LENGTH);
+        }
+    }
+
+    public ProductEditor.ProductEditorBuilder toEditor() {
+        return ProductEditor.builder()
+                .code(this.code)
+                .label(this.label)
+                .iconUrl(this.iconUrl)
+                .displayOrder(this.displayOrder);
+    }
+
+    public void edit(ProductEditor editor) {
+        this.code = editor.getCode();
+        this.label = editor.getLabel();
+        this.iconUrl = editor.getIconUrl();
+        this.displayOrder = editor.getDisplayOrder();
     }
 }

@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -13,4 +15,9 @@ public interface CategoryGroupRepository extends JpaRepository<CategoryGroup, Lo
     @Query("SELECT MAX(cg.displayOrder) FROM CategoryGroup cg")
     Optional<Integer> findMaxDisplayOrder();
 
+    boolean existsByCode(String code);
+
+    Optional<CategoryGroup> findByCode(String code);
+
+    List<CategoryGroup> findByIdIn(Collection<Long> ids);
 }
