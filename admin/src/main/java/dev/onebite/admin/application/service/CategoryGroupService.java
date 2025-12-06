@@ -4,12 +4,17 @@ import dev.onebite.admin.domain.CategoryGroup;
 import dev.onebite.admin.domain.ProductEditor;
 import dev.onebite.admin.infra.enums.ErrorCode;
 import dev.onebite.admin.infra.repository.CategoryGroupRepository;
+import dev.onebite.admin.persentation.dto.CategoryGroupDto;
 import dev.onebite.admin.persentation.dto.request.CreateCategoryGroupRequest;
-import dev.onebite.admin.persentation.dto.request.UpdateCategoryGroupRequest;
+import dev.onebite.admin.persentation.dto.request.UpdateCategoryGroupCommand;
 import dev.onebite.admin.persentation.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -41,7 +46,7 @@ public class CategoryGroupService {
     }
 
     @Transactional
-    public void update(UpdateCategoryGroupRequest request) {
+    public void update(UpdateCategoryGroupCommand request) {
         CategoryGroup categoryGroup = categoryGroupRepository.findById(request.groupId())
                 .orElseThrow(() -> new ApplicationException(ErrorCode.ID_NOT_FOUND));
 
@@ -67,5 +72,16 @@ public class CategoryGroupService {
         }
 
         categoryGroupRepository.deleteAllByIdInBatch(request.ids());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<@NonNull CategoryGroupDto> findCategoryGroups(String keyword, Pageable pageable){
+
+        if (StringUtils.hasText(keyword)) {
+            String searchKeyword = "%" + keyword + "%";
+            return categoryGroupRepository.searchDto(searchKeyword, pageable);
+        }
+
+        return categoryGroupRepository.findAllDto(pageable);
     }
 }

@@ -4,7 +4,7 @@ import dev.onebite.admin.domain.CategoryGroup;
 import dev.onebite.admin.infra.enums.ErrorCode;
 import dev.onebite.admin.infra.repository.CategoryGroupRepository;
 import dev.onebite.admin.persentation.dto.request.CreateCategoryGroupRequest;
-import dev.onebite.admin.persentation.dto.request.UpdateCategoryGroupRequest;
+import dev.onebite.admin.persentation.dto.request.UpdateCategoryGroupCommand;
 import dev.onebite.admin.persentation.exception.ApplicationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -169,7 +169,7 @@ class CategoryGroupServiceTest {
         CategoryGroup categoryGroup = categoryGroupRepository.findByCode("groupCode1").get();
 
 
-        UpdateCategoryGroupRequest updateRequest = new UpdateCategoryGroupRequest(categoryGroup.getId(), "groupCode2", "test2", "iconUrl2", 2);
+        UpdateCategoryGroupCommand updateRequest = new UpdateCategoryGroupCommand(categoryGroup.getId(), "groupCode2", "test2", "iconUrl2", 2);
         categoryGroupService.update(updateRequest);
 
         CategoryGroup updateGroup = categoryGroupRepository.findByCode("groupCode2").get();
@@ -188,7 +188,7 @@ class CategoryGroupServiceTest {
         categoryGroupService.create(request1);
 
         //given
-        UpdateCategoryGroupRequest request2 = new UpdateCategoryGroupRequest(9999L, "groupCode2", "label", "iconUrl", 1);
+        UpdateCategoryGroupCommand request2 = new UpdateCategoryGroupCommand(9999L, "groupCode2", "label", "iconUrl", 1);
 
         //when and given
         assertThatThrownBy(() -> categoryGroupService.update(request2))
@@ -205,7 +205,7 @@ class CategoryGroupServiceTest {
         CategoryGroup categoryGroup = categoryGroupRepository.findByCode("groupCode1").get();
 
         //given
-        UpdateCategoryGroupRequest request2 = new UpdateCategoryGroupRequest(categoryGroup.getId(), "groupCode1", "label", "iconUrl", 1);
+        UpdateCategoryGroupCommand request2 = new UpdateCategoryGroupCommand(categoryGroup.getId(), "groupCode1", "label", "iconUrl", 1);
 
         //when and given
         assertThatThrownBy(() -> categoryGroupService.update(request2))
