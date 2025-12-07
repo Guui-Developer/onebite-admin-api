@@ -84,7 +84,7 @@ public class CategoryService {
     public void delete(DeleteCategoryRequest request) {
         List<Category> categories = categoryRepository.findByIdIn(request.ids());
 
-        if (categories.size() != request.ids().size()) {
+        if (categories.isEmpty()) {
             throw new ApplicationException(ErrorCode.DELETE_DATA_NOT_FOUND);
         }
 

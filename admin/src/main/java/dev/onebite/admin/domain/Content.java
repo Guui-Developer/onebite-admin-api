@@ -22,10 +22,6 @@ public class Content extends BaseEntity {
     @Column(name = "type", nullable = false, length = 50)
     private String type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_key")
-    private CategoryGroup categoryKey;
-
     @Column(name = "title", length = 200)
     private String title;
 
@@ -53,12 +49,6 @@ public class Content extends BaseEntity {
     @Column(name = "question", columnDefinition = "TEXT")
     private String questionText;
 
-    @Column(name = "company", length = 100)
-    private String company;
-
-    @Column(name = "tags", columnDefinition = "jsonb")
-    private String tags;
-
     @Column(name = "views", columnDefinition = "int4 default 0")
     private Integer views;
 
@@ -71,4 +61,50 @@ public class Content extends BaseEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    private Content(String type, String title, String code, String description, String answer, String beforeCode, String afterCode, String feedback, String imageUrl, String questionText) {
+        this.type = type;
+        this.title = title;
+        this.code = code;
+        this.description = description;
+        this.answer = answer;
+        this.beforeCode = beforeCode;
+        this.afterCode = afterCode;
+        this.feedback = feedback;
+        this.imageUrl = imageUrl;
+        this.questionText = questionText;
+        this.views = 0;
+        this.bookmarks = 0;
+    }
+
+    public static Content of(String type, String title, String code, String description, String answer, String beforeCode, String afterCode, String feedback, String imageUrl, String questionText) {
+        return new Content(type, title, code, description, answer, beforeCode, afterCode, feedback, imageUrl, questionText);
+    }
+
+    public ContentEditor.ContentEditorBuilder toEditor() {
+        return ContentEditor.builder()
+                .type(this.type)
+                .title(this.title)
+                .code(this.code)
+                .description(this.description)
+                .answer(this.answer)
+                .beforeCode(this.beforeCode)
+                .afterCode(this.afterCode)
+                .feedback(this.feedback)
+                .imageUrl(this.imageUrl)
+                .questionText(this.questionText);
+    }
+
+
+    public void edit(ContentEditor editor) {
+        this.type = editor.getType();
+        this.title = editor.getTitle();
+        this.code = editor.getCode();
+        this.description = editor.getDescription();
+        this.answer = editor.getAnswer();
+        this.beforeCode = editor.getBeforeCode();
+        this.afterCode = editor.getAfterCode();
+        this.feedback = editor.getFeedback();
+        this.imageUrl = editor.getImageUrl();
+        this.questionText = editor.getQuestionText();
+    }
 }

@@ -68,7 +68,7 @@ public class CategoryGroupService {
 
         List<CategoryGroup> categoryGroups = categoryGroupRepository.findByIdIn(request.ids());
 
-        if (categoryGroups.size() != request.ids().size()) {
+        if (categoryGroups.isEmpty()) {
             throw new ApplicationException(ErrorCode.DELETE_DATA_NOT_FOUND);
         }
 

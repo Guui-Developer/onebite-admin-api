@@ -12,7 +12,8 @@ public enum ErrorCode {
     CODE_NOT_FOUND("존재하지 않는 카테고리 그룹입니다."),
     INVALID_CODE_LENGTH("올바르지 않는 코드 길이입니다."),
     ID_NOT_FOUND("올바르지 않는 아이디입니다."),
-    DELETE_DATA_NOT_FOUND("삭제할 대상이 존재하지 않습니다.");
+    DELETE_DATA_NOT_FOUND("삭제할 대상이 존재하지 않습니다."),
+    CONTENT_NOT_FOUND("존재하지 않는 컨텐츠입니다.");
 
     private final String message;
 
