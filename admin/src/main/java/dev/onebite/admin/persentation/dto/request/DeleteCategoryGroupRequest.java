@@ -1,4 +1,4 @@
-package dev.onebite.admin.application.service;
+package dev.onebite.admin.persentation.dto.request;
 
 import java.util.List;
 

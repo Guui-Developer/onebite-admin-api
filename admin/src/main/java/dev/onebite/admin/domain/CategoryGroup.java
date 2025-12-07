@@ -10,9 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.ColumnDefault;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,15 +79,15 @@ public class CategoryGroup extends BaseEntity {
         }
     }
 
-    public ProductEditor.ProductEditorBuilder toEditor() {
-        return ProductEditor.builder()
+    public CategoryGroupEditor.CategoryGroupEditorBuilder toEditor() {
+        return CategoryGroupEditor.builder()
                 .code(this.code)
                 .label(this.label)
                 .iconUrl(this.iconUrl)
                 .displayOrder(this.displayOrder);
     }
 
-    public void edit(ProductEditor editor) {
+    public void edit(CategoryGroupEditor editor) {
         this.code = editor.getCode();
         this.label = editor.getLabel();
         this.iconUrl = editor.getIconUrl();

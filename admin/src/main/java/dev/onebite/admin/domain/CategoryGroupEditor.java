@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ProductEditor {
+public class CategoryGroupEditor {
     private String code;
     private String label;
     private String iconUrl;

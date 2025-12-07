@@ -1,7 +1,7 @@
 package dev.onebite.admin.persentation.api.v1;
 
 import dev.onebite.admin.application.service.CategoryGroupService;
-import dev.onebite.admin.application.service.DeleteCategoryGroupRequest;
+import dev.onebite.admin.persentation.dto.request.DeleteCategoryGroupRequest;
 import dev.onebite.admin.persentation.dto.CategoryGroupDto;
 import dev.onebite.admin.persentation.dto.request.ApiResponse;
 import dev.onebite.admin.persentation.dto.request.CreateCategoryGroupRequest;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-public class CategoryAdminController {
+public class CategoryGroupController {
 
     private final CategoryGroupService categoryGroupService;
 

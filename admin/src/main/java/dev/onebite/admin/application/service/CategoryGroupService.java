@@ -1,11 +1,12 @@
 package dev.onebite.admin.application.service;
 
 import dev.onebite.admin.domain.CategoryGroup;
-import dev.onebite.admin.domain.ProductEditor;
+import dev.onebite.admin.domain.CategoryGroupEditor;
 import dev.onebite.admin.infra.enums.ErrorCode;
 import dev.onebite.admin.infra.repository.CategoryGroupRepository;
 import dev.onebite.admin.persentation.dto.CategoryGroupDto;
 import dev.onebite.admin.persentation.dto.request.CreateCategoryGroupRequest;
+import dev.onebite.admin.persentation.dto.request.DeleteCategoryGroupRequest;
 import dev.onebite.admin.persentation.dto.request.UpdateCategoryGroupCommand;
 import dev.onebite.admin.persentation.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
@@ -54,7 +55,7 @@ public class CategoryGroupService {
             throw new ApplicationException(ErrorCode.DUPLICATED_CODE);
         }
 
-        ProductEditor.ProductEditorBuilder groupEditor = categoryGroup.toEditor();
+        CategoryGroupEditor.CategoryGroupEditorBuilder groupEditor = categoryGroup.toEditor();
         groupEditor.code(request.groupCode());
         groupEditor.label(request.groupLabel());
         groupEditor.iconUrl(request.iconUrl());

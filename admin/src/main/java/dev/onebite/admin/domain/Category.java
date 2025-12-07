@@ -1,6 +1,8 @@
 package dev.onebite.admin.domain;
 
 import dev.onebite.admin.domain.global.BaseEntity;
+import dev.onebite.admin.infra.enums.ErrorCode;
+import dev.onebite.admin.persentation.exception.ApplicationException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -67,6 +69,9 @@ public class Category extends BaseEntity {
     private List<CategoryContent> categoryContents = new ArrayList<>();
 
     private Category(String code, String label, CategoryGroup categoryGroup, String iconUrl, String description, Integer displayOrder) {
+        validateCode(code);
+        validateLabel(label);
+
         this.code = code;
         this.label = label;
         this.categoryGroup = categoryGroup;
@@ -78,5 +83,38 @@ public class Category extends BaseEntity {
 
     public static Category of(String code, String label, CategoryGroup categoryGroup, String iconUrl, String description, Integer displayOrder) {
         return new Category(code, label, categoryGroup, iconUrl, description, displayOrder);
+    }
+
+    private void validateCode(String code) {
+        if (code == null || code.isBlank()) {
+            throw new ApplicationException(ErrorCode.VALIDATION_ERROR);
+        }
+        if (code.length() < 2 || code.length() > 20) {
+            throw new ApplicationException(ErrorCode.INVALID_CODE_LENGTH);
+        }
+    }
+
+    private void validateLabel(String label) {
+        if (label == null || label.isBlank()) {
+            throw new ApplicationException(ErrorCode.VALIDATION_ERROR);
+        }
+        if (label.length() < 2 || label.length() > 20) {
+            throw new ApplicationException(ErrorCode.INVALID_CODE_LENGTH);
+        }
+    }
+    public CategoryEditor.CategoryEditorBuilder toEditor() {
+        return CategoryEditor.builder()
+                .code(this.code)
+                .label(this.label)
+                .iconUrl(this.iconUrl)
+                .groupId(this.categoryGroup)
+                .displayOrder(this.displayOrder);
+    }
+
+    public void edit(CategoryEditor editor) {
+        this.code = editor.getCode();
+        this.label = editor.getLabel();
+        this.iconUrl = editor.getIconUrl();
+        this.displayOrder = editor.getDisplayOrder();
     }
 }

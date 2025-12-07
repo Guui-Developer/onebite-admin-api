@@ -4,6 +4,7 @@ import dev.onebite.admin.domain.CategoryGroup;
 import dev.onebite.admin.infra.enums.ErrorCode;
 import dev.onebite.admin.infra.repository.CategoryGroupRepository;
 import dev.onebite.admin.persentation.dto.request.CreateCategoryGroupRequest;
+import dev.onebite.admin.persentation.dto.request.DeleteCategoryGroupRequest;
 import dev.onebite.admin.persentation.dto.request.UpdateCategoryGroupCommand;
 import dev.onebite.admin.persentation.exception.ApplicationException;
 import org.junit.jupiter.api.AfterEach;
