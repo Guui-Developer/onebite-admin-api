@@ -2,8 +2,7 @@ package dev.onebite.admin.infra.repository;
 
 import dev.onebite.admin.domain.CategoryGroup;
 import dev.onebite.admin.persentation.dto.CategoryGroupDto;
-import jakarta.annotation.Nonnull;
-import org.jspecify.annotations.NonNull;
+import lombok.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -8,7 +8,6 @@ import dev.onebite.admin.persentation.dto.request.CreateContentRequest;
 import dev.onebite.admin.persentation.dto.request.DeleteContentRequest;
 import dev.onebite.admin.persentation.dto.request.UpdateContentCommand;
 import dev.onebite.admin.persentation.exception.ApplicationException;
-import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -307,7 +306,7 @@ class ContentServiceTest {
         contentRepository.save(createDummyContent("PYTHON Basic", "QUIZ"));
 
         // when
-        Page<@NonNull ContentDto> result = contentService.findContents("JAVA", PageRequest.of(0, 10));
+        Page<ContentDto> result = contentService.findContents("JAVA", PageRequest.of(0, 10));
 
         // then
         assertThat(result.getContent()).hasSize(2);
@@ -366,7 +365,7 @@ class ContentServiceTest {
         PageRequest pageRequest = PageRequest.of(0, pageSize);
 
         // when
-        Page<@NonNull ContentDto> result = contentService.findContents(null, pageRequest);
+        Page<ContentDto> result = contentService.findContents(null, pageRequest);
 
         // then
         assertThat(result.getContent()).hasSize(pageSize);
@@ -386,7 +385,7 @@ class ContentServiceTest {
         PageRequest pageRequest = PageRequest.of(3, pageSize);
 
         // when
-        Page<@NonNull ContentDto> result = contentService.findContents(null, pageRequest);
+        Page<ContentDto> result = contentService.findContents(null, pageRequest);
 
         // then
         assertThat(result.getContent()).hasSize(1);
