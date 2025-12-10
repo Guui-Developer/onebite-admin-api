@@ -22,4 +22,13 @@ public class CategoryContent {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category categoryId;
+
+    private CategoryContent(Content contentId, Category categoryId) {
+        this.contentId = contentId;
+        this.categoryId = categoryId;
+    }
+
+    public static CategoryContent of(Content contentId, Category categoryId) {
+        return new CategoryContent(contentId, categoryId);
+    }
 }

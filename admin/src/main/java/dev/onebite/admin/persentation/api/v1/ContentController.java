@@ -35,7 +35,7 @@ public class ContentController {
     }
 
     @PutMapping("/content/{contentId}")
-    public ApiResponse<Void> findAllCategoryGroups(@PathVariable Long contentId,@Valid @RequestBody UpdateContentRequest request) {
+    public ApiResponse<Void> findAllCategoryGroups(@PathVariable Long contentId, @Valid @RequestBody UpdateContentRequest request) {
         UpdateContentCommand command = new UpdateContentCommand(
                 contentId,
                 request.type(),
@@ -47,7 +47,8 @@ public class ContentController {
                 request.afterCode(),
                 request.feedback(),
                 request.imageUrl(),
-                request.question()
+                request.question(),
+                request.tags()
         );
         contentService.update(command);
         return ApiResponse.success("작업이 성공적으로 완료되었습니다.");
@@ -58,7 +59,6 @@ public class ContentController {
         contentService.delete(request);
         return ApiResponse.success("작업이 성공적으로 완료되었습니다.");
     }
-
 
 
 }

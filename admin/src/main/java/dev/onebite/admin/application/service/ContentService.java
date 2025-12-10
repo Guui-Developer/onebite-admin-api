@@ -1,8 +1,12 @@
 package dev.onebite.admin.application.service;
 
+import dev.onebite.admin.domain.Category;
+import dev.onebite.admin.domain.CategoryContent;
 import dev.onebite.admin.domain.Content;
 import dev.onebite.admin.domain.ContentEditor;
 import dev.onebite.admin.infra.enums.ErrorCode;
+import dev.onebite.admin.infra.repository.CategoryContentRepository;
+import dev.onebite.admin.infra.repository.CategoryRepository;
 import dev.onebite.admin.infra.repository.ContentRepository;
 import dev.onebite.admin.persentation.dto.ContentDto;
 import dev.onebite.admin.persentation.dto.request.CreateContentRequest;
@@ -24,6 +28,8 @@ import java.util.List;
 public class ContentService {
 
     private final ContentRepository contentRepository;
+    private final CategoryRepository categoryRepository;
+    private final CategoryContentRepository categoryContentRepository;
 
     @Transactional(readOnly = true)
     public Page<@NonNull ContentDto> findContents(String keyword, Pageable pageable) {
@@ -53,6 +59,14 @@ public class ContentService {
         );
 
         Content savedContent = contentRepository.save(content);
+        List<Category> categories = categoryRepository.findByCodeIn(request.tags());
+
+        if (!categories.isEmpty()) {
+            List<CategoryContent> categoryContents = categories.stream()
+                    .map(category -> CategoryContent.of(content, category))
+                    .toList();
+            categoryContentRepository.saveAll(categoryContents);
+        }
 
         return savedContent.getId();
     }
@@ -77,6 +91,18 @@ public class ContentService {
                 .build();
 
         content.edit(contentEditor);
+
+        List<Category> categories = categoryRepository.findByCodeIn(request.tags());
+
+        categoryContentRepository.deleteByContentId(content);
+
+        if (!categories.isEmpty()) {
+            List<CategoryContent> categoryContents = categories.stream()
+                    .map(category -> CategoryContent.of(content, category))
+                    .toList();
+
+            categoryContentRepository.saveAll(categoryContents);
+        }
 
         contentRepository.save(content);
 

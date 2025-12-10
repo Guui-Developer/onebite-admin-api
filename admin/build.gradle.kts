@@ -42,6 +42,12 @@ dependencies {
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
+    // Spring Security (핵심 라이브러리)
+    implementation("org.springframework.boot:spring-boot-starter-security")
+
+    // Security Test (테스트용, 선택사항이지만 권장)
+    testImplementation("org.springframework.security:spring-security-test")
+
     // 로컬/테스트용 H2
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

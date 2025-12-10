@@ -1,5 +1,7 @@
 package dev.onebite.admin.persentation.dto.request;
 
+import java.util.List;
+
 public record UpdateContentCommand(
         Long contentId,
         String type,
@@ -11,6 +13,7 @@ public record UpdateContentCommand(
         String afterCode,
         String feedback,
         String imageUrl,
-        String questionText
+        String questionText,
+        List<String> tags
 ) {
 }

@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 public record UpdateContentRequest(
 
         @NotBlank(message = "콘텐츠 타입은 필수입니다")
@@ -28,6 +30,7 @@ public record UpdateContentRequest(
         @Size(max = 500, message = "이미지 URL은 500자 이하여야 합니다")
         String imageUrl,
 
-        String question
+        String question,
+        List<String> tags
 ) {
 }

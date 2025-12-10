@@ -1,7 +1,12 @@
 package dev.onebite.admin.application.service;
 
+import dev.onebite.admin.domain.Category;
+import dev.onebite.admin.domain.CategoryGroup;
 import dev.onebite.admin.domain.Content;
 import dev.onebite.admin.infra.enums.ErrorCode;
+import dev.onebite.admin.infra.repository.CategoryContentRepository;
+import dev.onebite.admin.infra.repository.CategoryGroupRepository;
+import dev.onebite.admin.infra.repository.CategoryRepository;
 import dev.onebite.admin.infra.repository.ContentRepository;
 import dev.onebite.admin.persentation.dto.ContentDto;
 import dev.onebite.admin.persentation.dto.request.CreateContentRequest;
@@ -9,6 +14,7 @@ import dev.onebite.admin.persentation.dto.request.DeleteContentRequest;
 import dev.onebite.admin.persentation.dto.request.UpdateContentCommand;
 import dev.onebite.admin.persentation.exception.ApplicationException;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,11 +37,42 @@ class ContentServiceTest {
     private ContentRepository contentRepository;
 
     @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private CategoryGroupRepository categoryGroupRepository;
+
+    @Autowired
+    private CategoryContentRepository categoryContentRepository;
+
+    @Autowired
     private ContentService contentService;
+
+    private Category savedCategory;
+
+    @BeforeEach
+    void setUp() {
+        CategoryGroup categoryGroup = createDummyCategoryGroup("LANG", "언어");
+        categoryGroupRepository.save(categoryGroup);
+
+        Category category = createDummyCategory("JAVA", "자바", categoryGroup);
+        savedCategory = categoryRepository.save(category);
+    }
 
     @AfterEach
     void tearDown() {
+        categoryContentRepository.deleteAllInBatch();
         contentRepository.deleteAllInBatch();
+        categoryRepository.deleteAllInBatch();
+        categoryGroupRepository.deleteAllInBatch();
+    }
+
+    private CategoryGroup createDummyCategoryGroup(String code, String label) {
+        return CategoryGroup.of(code, label, "icon.png", 1);
+    }
+
+    private Category createDummyCategory(String code, String label, CategoryGroup categoryGroup) {
+        return Category.of(code, label, categoryGroup, "icon.png", "description", 1);
     }
 
     private Content createDummyContent(String title, String type) {
@@ -59,7 +97,8 @@ class ContentServiceTest {
                 "이후 코드",
                 "피드백",
                 "https://example.com/image.jpg",
-                "질문 내용"
+                "질문 내용",
+                List.of(savedCategory.getCode())
         );
 
         // when
@@ -78,7 +117,7 @@ class ContentServiceTest {
     void createContent_checkAuditing() {
         // given
         CreateContentRequest request = new CreateContentRequest(
-                "QUIZ", "제목", "코드", "설명", "정답", null, null, null, null, "질문"
+                "QUIZ", "제목", "코드", "설명", "정답", null, null, null, null, "질문", List.of(savedCategory.getCode())
         );
 
         // when
@@ -90,7 +129,6 @@ class ContentServiceTest {
         assertThat(content.getCreatedAt()).isNotNull();
         assertThat(content.getUpdatedAt()).isNotNull();
 
-        // (선택) 생성 직후이므로 생성일과 수정일이 거의 같아야 함 (JPA Auditing 동작 확인)
         assertThat(content.getCreatedAt()).isEqualTo(content.getUpdatedAt());
     }
 
@@ -99,10 +137,21 @@ class ContentServiceTest {
     @DisplayName("콘텐츠 목록 조회 테스트")
     void getContents() {
         // given
+        contentRepository.saveAll(List.of(
+                createDummyContent("Title 1", "QUIZ"),
+                createDummyContent("Title 2", "CODE"),
+                createDummyContent("Title 3", "QUIZ")
+        ));
+
+        PageRequest pageRequest = PageRequest.of(0, 5);
 
         // when
+        Page<ContentDto> result = contentService.findContents(null, pageRequest);
 
         // then
+        assertThat(result.getContent()).hasSize(3);
+        assertThat(result.getTotalElements()).isEqualTo(3);
+        assertThat(result.getContent().get(0).title()).isEqualTo("Title 1");
     }
 
 
@@ -110,10 +159,13 @@ class ContentServiceTest {
     @DisplayName("존재하지 않는 콘텐츠 조회 시 예외 발생 테스트")
     void getContentNotFound() {
         // given
+        Long nonExistentId = 999999L;
 
         // when
+        Optional<Content> result = contentRepository.findById(nonExistentId);
 
         // then
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -145,7 +197,8 @@ class ContentServiceTest {
                 "new after",
                 "new feedback",
                 "https://new.com",
-                "수정된 질문"
+                "수정된 질문",
+                List.of(savedCategory.getCode())
         );
 
         // when
@@ -174,7 +227,8 @@ class ContentServiceTest {
                 "코드",
                 "설명",
                 "정답",
-                null, null, null, null, null
+                null, null, null, null, null,
+                List.of(savedCategory.getCode())
         );
 
         // when & then
@@ -215,7 +269,8 @@ class ContentServiceTest {
                 original.getAfterCode(),  // 유지
                 "수정된 피드백!!!",         // [변경]
                 original.getImageUrl(),   // 유지
-                original.getQuestionText()// 유지
+                original.getQuestionText(),// 유지
+                List.of(savedCategory.getCode())
         );
 
         // when
@@ -320,7 +375,7 @@ class ContentServiceTest {
     void createContent_defaultCounters() {
         CreateContentRequest request = new CreateContentRequest(
                 "QUIZ", "제목", "코드", "설명", "정답",
-                null, null, null, null, null
+                null, null, null, null, null, List.of(savedCategory.getCode())
         );
 
         // when
@@ -339,7 +394,7 @@ class ContentServiceTest {
         // given
         CreateContentRequest request = new CreateContentRequest(
                 "QUIZ", "제목", "코드", "설명", "정답",
-                null, null, null, null, null
+                null, null, null, null, null, List.of(savedCategory.getCode())
         );
 
         // when
