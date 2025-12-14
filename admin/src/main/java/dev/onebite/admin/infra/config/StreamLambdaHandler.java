@@ -25,6 +25,10 @@ public class StreamLambdaHandler implements RequestStreamHandler {
                     .servletApplication()
                     .springBootApplication(AdminApplication.class)
                     .buildAndInitialize();
+            String stage = System.getenv("APIGW_STAGE");
+            if (stage != null && !stage.isEmpty()) {
+                handler.stripBasePath(stage);
+            }
         } catch (ContainerInitializationException e) {
             e.printStackTrace();
             throw new RuntimeException("Could not initialize Spring Boot application", e);
