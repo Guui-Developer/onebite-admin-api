@@ -15,6 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://127.0.0.1:3000",
                         "http://localhost:8080",
                         "http://127.0.0.1:8080",
+                        "http://localhost:5173",
                         "https://dev.admin.devonebite.xyz",
                         "https://live.admin.devonebite.xyz",
                         "https://admin-api.devonebite.xyz"
