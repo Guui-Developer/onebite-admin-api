@@ -30,7 +30,7 @@ public interface CategoryRepository extends JpaRepository<@NonNull Category, @No
     @Query(
             value = "SELECT new dev.onebite.admin.persentation.dto.CategoryDto(c.id, c.code, c.label, c.categoryGroup.id,c.iconUrl, c.displayOrder) " +
                     "FROM Category c order by c.displayOrder",
-            countQuery = "SELECT count(c) FROM CategoryGroup c"
+            countQuery = "SELECT count(c) FROM Category c"
     )
     Page<@NonNull CategoryDto> findAllDto(Pageable pageable);
 
@@ -41,7 +41,7 @@ public interface CategoryRepository extends JpaRepository<@NonNull Category, @No
                     "WHERE c.label LIKE :keyword " +
                     "order by c.displayOrder"
             ,
-            countQuery = "SELECT count(c) FROM CategoryGroup c WHERE c.label LIKE :keyword"
+            countQuery = "SELECT count(c) FROM Category c WHERE c.label LIKE :keyword"
     )
     Page<@NonNull CategoryDto> searchDto(@Param("keyword") String keyword, Pageable pageable);
 
