@@ -2,17 +2,19 @@ package dev.onebite.admin.application.service;
 
 import dev.onebite.admin.domain.CategoryGroup;
 import dev.onebite.admin.infra.enums.ErrorCode;
+import dev.onebite.admin.infra.repository.CategoryContentRepository;
 import dev.onebite.admin.infra.repository.CategoryGroupRepository;
 import dev.onebite.admin.persentation.dto.request.CreateCategoryGroupRequest;
+import dev.onebite.admin.persentation.dto.request.CreateCategoryRequest;
 import dev.onebite.admin.persentation.dto.request.DeleteCategoryGroupRequest;
 import dev.onebite.admin.persentation.dto.request.UpdateCategoryGroupCommand;
 import dev.onebite.admin.persentation.exception.ApplicationException;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Transactional
 class CategoryGroupServiceTest {
 
     @Autowired
@@ -29,10 +32,10 @@ class CategoryGroupServiceTest {
     @Autowired
     private CategoryGroupService categoryGroupService;
 
-    @AfterEach
-    void tearDown() {
-        categoryGroupRepository.deleteAllInBatch();
-    }
+    @Autowired
+    private CategoryService categoryService;
+
+
 
     @Test
     @DisplayName("카테고리 그룹 생성시 정렬 순서가 최대값인지 테스트한다.")
@@ -213,8 +216,8 @@ class CategoryGroupServiceTest {
                 .isInstanceOf(ApplicationException.class)
                 .hasMessage(ErrorCode.DUPLICATED_CODE.getMessage());
     }
-    
-    
+
+
     @Test
     @DisplayName("유효한 ID 목록으로 여러 카테고리 그룹을 정상적으로 삭제하는지 테스트한다.")
     void deleteCategoryGroups_withValidIds_succeeds() {
@@ -244,12 +247,31 @@ class CategoryGroupServiceTest {
     @Test
     @DisplayName("모든 ID가 존재하지 않을 경우, 예외가 발생하는지 테스트한다.")
     void deleteCategoryGroups_withAllInvalidIds_throwsException() {
-        DeleteCategoryGroupRequest deleteRequest = new DeleteCategoryGroupRequest(List.of(1L,3L,4L,5L), false);
+        DeleteCategoryGroupRequest deleteRequest = new DeleteCategoryGroupRequest(List.of(1L, 3L, 4L, 5L), false);
 
-        assertThatThrownBy(()->categoryGroupService.delete(deleteRequest))
+        assertThatThrownBy(() -> categoryGroupService.delete(deleteRequest))
                 .isInstanceOf(ApplicationException.class)
                 .hasMessage(ErrorCode.DELETE_DATA_NOT_FOUND.getMessage());
 
 
     }
+
+    @Test
+    @DisplayName("데이터 삭제시 하위 데이터가 존재하는 경우 예외가 발생하는지 테스트한다.")
+    void deleteCategoryGroups_withChildData_throwsException() {
+        CreateCategoryGroupRequest request1 = new CreateCategoryGroupRequest("groupCode1", "test1", "iconUrl");
+        categoryGroupService.create(request1);
+
+        CategoryGroup categoryGroup = categoryGroupRepository.findByCode("groupCode1").get();
+
+        CreateCategoryRequest request2 = new CreateCategoryRequest(categoryGroup.getId(), "code1", "label1", "iconUrl1", "des1");
+        categoryService.create(request2);
+
+
+        assertThatThrownBy(() -> categoryGroupService.delete(
+                new DeleteCategoryGroupRequest(List.of(categoryGroup.getId()), false)))
+                .isInstanceOf(ApplicationException.class)
+                .hasMessage("하위 데이터가 존재하여 삭제할 수 없습니다.");
+    }
+
 }

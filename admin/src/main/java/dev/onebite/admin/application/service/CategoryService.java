@@ -5,8 +5,10 @@ import dev.onebite.admin.domain.Category;
 import dev.onebite.admin.domain.CategoryEditor;
 import dev.onebite.admin.domain.CategoryGroup;
 import dev.onebite.admin.infra.enums.ErrorCode;
+import dev.onebite.admin.infra.repository.CategoryContentRepository;
 import dev.onebite.admin.infra.repository.CategoryGroupRepository;
 import dev.onebite.admin.infra.repository.CategoryRepository;
+import dev.onebite.admin.infra.repository.ContentRepository;
 import dev.onebite.admin.persentation.dto.CategoryDto;
 import dev.onebite.admin.persentation.dto.request.CreateCategoryRequest;
 import dev.onebite.admin.persentation.dto.request.DeleteCategoryRequest;
@@ -28,6 +30,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryGroupRepository categoryGroupRepository;
+    private final CategoryContentRepository categoryContentRepository;
 
     @Transactional
     public void create(CreateCategoryRequest request) {
@@ -85,6 +88,16 @@ public class CategoryService {
 
         if (categories.isEmpty()) {
             throw new ApplicationException(ErrorCode.DELETE_DATA_NOT_FOUND);
+        }
+
+        List<Long> categoryGroupIds = categories.stream()
+                .map(Category::getId)
+                .toList();
+
+        boolean hasContent = categoryContentRepository.existsByCategoryIds(categoryGroupIds);
+
+        if(hasContent){
+            throw new ApplicationException(ErrorCode.CATEGORY_HAS_CONTENT);
         }
 
         categoryRepository.deleteAllByIdInBatch(request.ids());

@@ -1,12 +1,15 @@
 package dev.onebite.admin.application.service;
 
 import dev.onebite.admin.domain.Category;
+import dev.onebite.admin.domain.CategoryContent;
 import dev.onebite.admin.domain.CategoryGroup;
+import dev.onebite.admin.domain.Content;
 import dev.onebite.admin.infra.enums.ErrorCode;
+import dev.onebite.admin.infra.repository.CategoryContentRepository;
 import dev.onebite.admin.infra.repository.CategoryGroupRepository;
 import dev.onebite.admin.infra.repository.CategoryRepository;
+import dev.onebite.admin.infra.repository.ContentRepository;
 import dev.onebite.admin.persentation.dto.request.CreateCategoryRequest;
-import dev.onebite.admin.persentation.dto.request.DeleteCategoryGroupRequest;
 import dev.onebite.admin.persentation.dto.request.DeleteCategoryRequest;
 import dev.onebite.admin.persentation.dto.request.UpdateCategoryCommand;
 import dev.onebite.admin.persentation.exception.ApplicationException;
@@ -17,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Transactional
 class CategoryServiceTest {
 
     @Autowired
@@ -36,18 +41,18 @@ class CategoryServiceTest {
     @Autowired
     private CategoryGroupRepository categoryGroupRepository;
 
+    @Autowired
+    private CategoryContentRepository categoryContentRepository;
+
+    @Autowired
+    private ContentRepository contentRepository;
+
     private CategoryGroup categoryGroup;
 
     @BeforeEach
     void setUp() {
         categoryGroup = CategoryGroup.of("groupCode", "groupLabel", "iconUrl", 1);
         categoryGroupRepository.save(categoryGroup);
-    }
-
-    @AfterEach
-    void tearDown() {
-        categoryRepository.deleteAllInBatch();
-        categoryGroupRepository.deleteAllInBatch();
     }
 
     @Test
@@ -281,4 +286,27 @@ class CategoryServiceTest {
 
 
     }
+
+    @Test
+    @DisplayName("데이터 삭제시 하위 데이터가 존재하는 경우 예외가 발생하는지 테스트한다.")
+    void deleteCategories_withChildData_throwsException() {
+        CreateCategoryRequest request2 = new CreateCategoryRequest(categoryGroup.getId(), "code1", "label1", "iconUrl1", "des1");
+        categoryService.create(request2);
+
+        Category category = categoryRepository.findByCode("code1").get();
+
+        Content content = Content.of(
+                "QUIZ", "삭제될 제목", "code", "desc", "answer",
+                null, null, null, null, null
+        );
+        contentRepository.save(content);
+
+        categoryContentRepository.save(CategoryContent.of(content, category));
+
+        assertThatThrownBy(() -> categoryService.delete(
+                new DeleteCategoryRequest(List.of(category.getId()), false)))
+                .isInstanceOf(ApplicationException.class)
+                .hasMessage("하위 데이터가 존재하여 삭제할 수 없습니다.");
+    }
+
 }

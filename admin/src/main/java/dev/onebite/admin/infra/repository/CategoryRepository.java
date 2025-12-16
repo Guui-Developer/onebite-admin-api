@@ -46,4 +46,9 @@ public interface CategoryRepository extends JpaRepository<@NonNull Category, @No
     Page<@NonNull CategoryDto> searchDto(@Param("keyword") String keyword, Pageable pageable);
 
     List<Category> findByCodeIn(List<String> tags);
+
+    boolean existsByCategoryGroupIdIn(List<Long> ids);
+
+    @Query("SELECT COUNT(c) FROM Category c WHERE c.categoryGroup.id IN :categoryGroupIds")
+    long countByCategoryGroupIds(@Param("categoryGroupIds") List<Long> categoryGroupIds);
 }

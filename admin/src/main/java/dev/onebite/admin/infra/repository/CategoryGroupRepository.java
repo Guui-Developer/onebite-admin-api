@@ -42,4 +42,5 @@ public interface CategoryGroupRepository extends JpaRepository<@NonNull Category
             countQuery = "SELECT count(c) FROM CategoryGroup c WHERE c.label LIKE :keyword"
     )
     Page<@NonNull CategoryGroupDto> searchDto(@Param("keyword") String keyword, Pageable pageable);
+
 }

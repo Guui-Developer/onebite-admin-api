@@ -4,6 +4,7 @@ import dev.onebite.admin.domain.CategoryGroup;
 import dev.onebite.admin.domain.CategoryGroupEditor;
 import dev.onebite.admin.infra.enums.ErrorCode;
 import dev.onebite.admin.infra.repository.CategoryGroupRepository;
+import dev.onebite.admin.infra.repository.CategoryRepository;
 import dev.onebite.admin.persentation.dto.CategoryGroupDto;
 import dev.onebite.admin.persentation.dto.request.CreateCategoryGroupRequest;
 import dev.onebite.admin.persentation.dto.request.DeleteCategoryGroupRequest;
@@ -11,6 +12,7 @@ import dev.onebite.admin.persentation.dto.request.UpdateCategoryGroupCommand;
 import dev.onebite.admin.persentation.exception.ApplicationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,12 +21,13 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CategoryGroupService {
 
     private final CategoryGroupRepository categoryGroupRepository;
+    private final CategoryRepository categoryRepository;
 
     @Transactional
     public void create(CreateCategoryGroupRequest request) {
@@ -70,6 +73,12 @@ public class CategoryGroupService {
 
         if (categoryGroups.isEmpty()) {
             throw new ApplicationException(ErrorCode.DELETE_DATA_NOT_FOUND);
+        }
+
+        boolean hasChildren = categoryRepository.existsByCategoryGroupIdIn(request.ids());
+
+        if(hasChildren){
+            throw new ApplicationException(ErrorCode.CATEGORY_HAS_CONTENT);
         }
 
         categoryGroupRepository.deleteAllByIdInBatch(request.ids());

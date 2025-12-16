@@ -30,6 +30,7 @@ public class GlobalExceptionHandler {
         return ErrorResponse.of(ErrorDetail.of("VALIDATION_ERROR", "필수 유효성 검사 실패", errors));
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(ApplicationException.class)
     public ErrorResponse handleIllegalArgumentException(ApplicationException e) {
         return ErrorResponse.of(ErrorDetail.of(e.getErrorCode().getCode(), e.getErrorCode().getMessage()));

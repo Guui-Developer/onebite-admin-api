@@ -15,7 +15,8 @@ public enum ErrorCode {
     DELETE_DATA_NOT_FOUND("삭제할 대상이 존재하지 않습니다."),
     CONTENT_NOT_FOUND("존재하지 않는 컨텐츠입니다."),
     AWS_ERROR("AWS 관련 오류가 발생했습니다."),
-    ADMIN_LOGIN_FAIL("아이디 또는 패스워드가 틀렸습니다.");
+    ADMIN_LOGIN_FAIL("아이디 또는 패스워드가 틀렸습니다."),
+    CATEGORY_HAS_CONTENT("하위 데이터가 존재하여 삭제할 수 없습니다.");
 
     private final String message;
 
