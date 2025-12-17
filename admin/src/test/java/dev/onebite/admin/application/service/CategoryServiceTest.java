@@ -266,7 +266,7 @@ class CategoryServiceTest {
 
         List<Long> ids = List.of(category1.getId(), category2.getId(), category3.getId());
 
-        DeleteCategoryRequest deleteCategoryGroupRequest = new DeleteCategoryRequest(ids, false);
+        DeleteCategoryRequest deleteCategoryGroupRequest = new DeleteCategoryRequest(ids);
         categoryService.delete(deleteCategoryGroupRequest);
 
         assertThat(categoryRepository.findAll()).isEmpty();
@@ -278,7 +278,7 @@ class CategoryServiceTest {
     @DisplayName("모든 ID가 존재하지 않을 경우, 예외가 발생하는지 테스트한다.")
     void deleteCategories_withAllInvalidIds_throwsException() {
         List<Long> ids = List.of(1L, 3L, 4L, 5L);
-        DeleteCategoryRequest deleteCategoryGroupRequest = new DeleteCategoryRequest(ids, false);
+        DeleteCategoryRequest deleteCategoryGroupRequest = new DeleteCategoryRequest(ids);
 
         assertThatThrownBy(() -> categoryService.delete(deleteCategoryGroupRequest))
                 .isInstanceOf(ApplicationException.class)
@@ -304,7 +304,7 @@ class CategoryServiceTest {
         categoryContentRepository.save(CategoryContent.of(content, category));
 
         assertThatThrownBy(() -> categoryService.delete(
-                new DeleteCategoryRequest(List.of(category.getId()), false)))
+                new DeleteCategoryRequest(List.of(category.getId()))))
                 .isInstanceOf(ApplicationException.class)
                 .hasMessage("하위 데이터가 존재하여 삭제할 수 없습니다.");
     }

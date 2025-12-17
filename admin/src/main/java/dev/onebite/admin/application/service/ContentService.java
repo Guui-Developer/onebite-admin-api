@@ -21,7 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,12 +37,39 @@ public class ContentService {
     @Transactional(readOnly = true)
     public Page<@NonNull ContentDto> findContents(String keyword, Pageable pageable) {
 
+        Page<ContentDto> contentPage;
+
         if (StringUtils.hasText(keyword)) {
             String searchKeyword = "%" + keyword + "%";
-            return contentRepository.searchDto(searchKeyword, pageable);
+            contentPage = contentRepository.searchDto(searchKeyword, pageable);
+        } else {
+            contentPage = contentRepository.findAllDto(pageable);
         }
 
-        return contentRepository.findAllDto(pageable);
+        if (contentPage.isEmpty()) {
+            return contentPage;
+        }
+
+        List<Long> contentIds = contentPage.getContent().stream()
+                .map(ContentDto::getContentId)
+                .toList();
+
+        List<CategoryContent> foundContentList = categoryContentRepository.findAllByContentIdIn(contentIds);
+
+        Map<Long, List<String>> categoryMap = foundContentList.stream()
+                .collect(Collectors.groupingBy(
+                        cc -> cc.getContentId().getId(),
+                        Collectors.mapping(
+                                cc -> cc.getCategoryId().getCode(),
+                                Collectors.toList()
+                        )
+                ));
+
+        contentPage.getContent().forEach(dto -> {
+            dto.assignTags(categoryMap.getOrDefault(dto.getContentId(), Collections.emptyList()));
+        });
+
+        return contentPage;
     }
 
     @Transactional
@@ -59,6 +89,7 @@ public class ContentService {
         );
 
         Content savedContent = contentRepository.save(content);
+
         List<Category> categories = categoryRepository.findByCodeIn(request.tags());
 
         if (!categories.isEmpty()) {

@@ -151,7 +151,7 @@ class ContentServiceTest {
         // then
         assertThat(result.getContent()).hasSize(3);
         assertThat(result.getTotalElements()).isEqualTo(3);
-        assertThat(result.getContent().get(0).title()).isEqualTo("Title 1");
+        assertThat(result.getContent().get(0).getTitle()).isEqualTo("Title 1");
     }
 
 
@@ -296,7 +296,7 @@ class ContentServiceTest {
         contentRepository.save(content);
         Long targetId = content.getId();
 
-        DeleteContentRequest request = new DeleteContentRequest(List.of(targetId),false);
+        DeleteContentRequest request = new DeleteContentRequest(List.of(targetId));
 
         // when
         contentService.delete(request);
@@ -315,7 +315,7 @@ class ContentServiceTest {
         );
         contentRepository.save(survivor);
 
-        DeleteContentRequest request = new DeleteContentRequest(List.of(),false);
+        DeleteContentRequest request = new DeleteContentRequest(List.of());
 
         // when
         assertThatThrownBy(()-> contentService.delete(request))
@@ -340,7 +340,7 @@ class ContentServiceTest {
         contentRepository.save(survivor);
 
         Long nonExistentId = 999999L;
-        DeleteContentRequest request = new DeleteContentRequest(List.of(saved.getId(), nonExistentId),false);
+        DeleteContentRequest request = new DeleteContentRequest(List.of(saved.getId(), nonExistentId));
 
         // when
         contentService.delete(request);

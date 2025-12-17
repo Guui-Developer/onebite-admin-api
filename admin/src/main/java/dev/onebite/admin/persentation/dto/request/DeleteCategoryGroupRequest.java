@@ -3,7 +3,6 @@ package dev.onebite.admin.persentation.dto.request;
 import java.util.List;
 
 public record DeleteCategoryGroupRequest(
-        List<Long> ids,
-        boolean force
+        List<Long> ids
 ) {
 }

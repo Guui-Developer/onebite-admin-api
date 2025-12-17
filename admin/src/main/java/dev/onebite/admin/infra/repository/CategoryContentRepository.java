@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface CategoryContentRepository extends JpaRepository<CategoryContent, Long> {
@@ -15,4 +16,9 @@ public interface CategoryContentRepository extends JpaRepository<CategoryContent
             "FROM CategoryContent cc " +
             "WHERE cc.categoryId.id IN :categoryIds")
     boolean existsByCategoryIds(@Param("categoryIds") List<Long> categoryIds);
+
+    @Query("SELECT cc FROM CategoryContent cc " +
+            "JOIN FETCH cc.categoryId " +
+            "WHERE cc.contentId.id IN :contentIds")
+    List<CategoryContent> findAllByContentIdIn(@Param("contentIds") List<Long> contentIds);
 }
