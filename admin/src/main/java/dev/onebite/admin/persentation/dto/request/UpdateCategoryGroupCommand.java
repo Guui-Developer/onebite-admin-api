@@ -4,7 +4,6 @@ public record UpdateCategoryGroupCommand(
         Long groupId,
         String groupCode,
         String groupLabel,
-        String iconUrl,
-        int displayOrder
+        String iconUrl
 ) {
 }

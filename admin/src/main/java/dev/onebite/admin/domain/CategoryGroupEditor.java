@@ -9,5 +9,4 @@ public class CategoryGroupEditor {
     private String code;
     private String label;
     private String iconUrl;
-    private int displayOrder;
 }

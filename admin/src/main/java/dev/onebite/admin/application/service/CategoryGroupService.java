@@ -1,11 +1,13 @@
 package dev.onebite.admin.application.service;
 
+import com.fasterxml.jackson.core.TreeCodec;
 import dev.onebite.admin.domain.CategoryGroup;
 import dev.onebite.admin.domain.CategoryGroupEditor;
 import dev.onebite.admin.infra.enums.ErrorCode;
 import dev.onebite.admin.infra.repository.CategoryGroupRepository;
 import dev.onebite.admin.infra.repository.CategoryRepository;
 import dev.onebite.admin.persentation.dto.CategoryGroupDto;
+import dev.onebite.admin.persentation.dto.request.CategoryGroupReOrderRequest;
 import dev.onebite.admin.persentation.dto.request.CreateCategoryGroupRequest;
 import dev.onebite.admin.persentation.dto.request.DeleteCategoryGroupRequest;
 import dev.onebite.admin.persentation.dto.request.UpdateCategoryGroupCommand;
@@ -20,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -28,6 +33,7 @@ public class CategoryGroupService {
 
     private final CategoryGroupRepository categoryGroupRepository;
     private final CategoryRepository categoryRepository;
+    private final TreeCodec treeCodec;
 
     @Transactional
     public void create(CreateCategoryGroupRequest request) {
@@ -62,7 +68,6 @@ public class CategoryGroupService {
         groupEditor.code(request.groupCode());
         groupEditor.label(request.groupLabel());
         groupEditor.iconUrl(request.iconUrl());
-        groupEditor.displayOrder(request.displayOrder());
         categoryGroup.edit(groupEditor.build());
     }
 
@@ -94,4 +99,23 @@ public class CategoryGroupService {
 
         return categoryGroupRepository.findAllDto(pageable);
     }
+
+    @Transactional
+    public void reOrder(CategoryGroupReOrderRequest request) {
+        List<CategoryGroup> categoryGroups = categoryGroupRepository.findByIdIn(request.categoryGroupIds());
+
+        if (categoryGroups.isEmpty()) {
+            throw new ApplicationException(ErrorCode.ID_NOT_FOUND);
+        }
+
+        Map<Long, CategoryGroup> categoryGroupMap = categoryGroups.stream()
+                .collect(Collectors.toMap(CategoryGroup::getId, Function.identity()));
+
+        for (int i = 0; i < request.categoryGroupIds().size(); i++) {
+            Long id = request.categoryGroupIds().get(i);
+            CategoryGroup categoryGroupId = categoryGroupMap.get(id);
+            categoryGroupId.updateDisplayOrder(i + 1);
+        }
+    }
+
 }

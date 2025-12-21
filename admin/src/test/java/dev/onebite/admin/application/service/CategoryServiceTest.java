@@ -9,9 +9,7 @@ import dev.onebite.admin.infra.repository.CategoryContentRepository;
 import dev.onebite.admin.infra.repository.CategoryGroupRepository;
 import dev.onebite.admin.infra.repository.CategoryRepository;
 import dev.onebite.admin.infra.repository.ContentRepository;
-import dev.onebite.admin.persentation.dto.request.CreateCategoryRequest;
-import dev.onebite.admin.persentation.dto.request.DeleteCategoryRequest;
-import dev.onebite.admin.persentation.dto.request.UpdateCategoryCommand;
+import dev.onebite.admin.persentation.dto.request.*;
 import dev.onebite.admin.persentation.exception.ApplicationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,9 +17,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -211,7 +212,6 @@ class CategoryServiceTest {
         assertThat(updateCategory.getCode()).isEqualTo("code2");
         assertThat(updateCategory.getLabel()).isEqualTo("test2");
         assertThat(updateCategory.getIconUrl()).isEqualTo("iconUrl2");
-        assertThat(updateCategory.getDisplayOrder()).isEqualTo(2);
     }
 
 
@@ -307,6 +307,41 @@ class CategoryServiceTest {
                 new DeleteCategoryRequest(List.of(category.getId()))))
                 .isInstanceOf(ApplicationException.class)
                 .hasMessage("하위 데이터가 존재하여 삭제할 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("카테고리 순서 정렬 작업시 요청한 ID 순서대로 displayOrder가 갱신되어야 한다.")
+    void reOrder() {
+        CreateCategoryRequest request1 = new CreateCategoryRequest(categoryGroup.getId(), "cat1", "label1", "icon", "desc");
+        CreateCategoryRequest request2 = new CreateCategoryRequest(categoryGroup.getId(), "cat2", "label2", "icon", "desc");
+        CreateCategoryRequest request3 = new CreateCategoryRequest(categoryGroup.getId(), "cat3", "label3", "icon", "desc");
+
+        categoryService.create(request1);
+        categoryService.create(request2);
+        categoryService.create(request3);
+
+        List<Category> categories = categoryRepository.findAll();
+        List<Long> originalIds = categories.stream()
+                .map(Category::getId)
+                .toList();
+
+        List<Long> requestOrder = new ArrayList<>(originalIds);
+        Collections.reverse(requestOrder);
+
+        // When
+        CategoryReOrderRequest reOrderRequest = new CategoryReOrderRequest(requestOrder);
+        categoryService.reOrder(reOrderRequest);
+
+        // Then
+        List<Category> result = categoryRepository.findAll(Sort.by(Sort.Direction.ASC, "displayOrder"));
+
+        assertThat(result.get(0).getId()).isEqualTo(requestOrder.get(0));
+        assertThat(result.get(1).getId()).isEqualTo(requestOrder.get(1));
+        assertThat(result.get(2).getId()).isEqualTo(requestOrder.get(2));
+
+        assertThat(result.get(0).getDisplayOrder()).isEqualTo(1);
+        assertThat(result.get(1).getDisplayOrder()).isEqualTo(2);
+        assertThat(result.get(2).getDisplayOrder()).isEqualTo(3);
     }
 
 }

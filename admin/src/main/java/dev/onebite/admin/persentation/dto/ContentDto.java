@@ -28,7 +28,7 @@ public class ContentDto {
     private final Instant createdAt;
     private final Instant updatedAt;
 
-    private List<String> tag = new ArrayList<>();
+    private List<String> tags = new ArrayList<>();
 
 
     public ContentDto(Long contentId, String type, String title, String code,
@@ -55,6 +55,6 @@ public class ContentDto {
     }
 
     public void assignTags(List<String> tag) {
-        this.tag = tag;
+        this.tags = tag;
     }
 }

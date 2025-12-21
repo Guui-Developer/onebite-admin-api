@@ -83,14 +83,16 @@ public class CategoryGroup extends BaseEntity {
         return CategoryGroupEditor.builder()
                 .code(this.code)
                 .label(this.label)
-                .iconUrl(this.iconUrl)
-                .displayOrder(this.displayOrder);
+                .iconUrl(this.iconUrl);
     }
 
     public void edit(CategoryGroupEditor editor) {
         this.code = editor.getCode();
         this.label = editor.getLabel();
         this.iconUrl = editor.getIconUrl();
-        this.displayOrder = editor.getDisplayOrder();
+    }
+
+    public void updateDisplayOrder(int displayOrder) {
+        this.displayOrder = displayOrder;
     }
 }

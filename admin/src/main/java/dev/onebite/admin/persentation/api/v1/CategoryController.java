@@ -9,6 +9,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class CategoryController {
     @GetMapping("/categories")
     public ApiResponse<PageResponse<CategoryDto>> findAllCategoryGroups(
             String keyword,
-            @PageableDefault(size = 10) Pageable pageable) {
+            @PageableDefault(size = 10, sort = "displayOrder", direction = Sort.Direction.ASC) Pageable pageable) {
         Page<@NonNull CategoryDto> categories = categoryService.findCategories(keyword, pageable);
         return ApiResponse.success(PageResponse.of(categories));
     }
@@ -44,4 +45,11 @@ public class CategoryController {
         categoryService.delete(request);
         return ApiResponse.success("작업이 성공적으로 완료되었습니다.");
     }
+
+    @PutMapping("/categories/reorder")
+    public ApiResponse<Void> reorderCategoryGroups(@RequestBody CategoryReOrderRequest request) {
+        categoryService.reOrder(request);
+        return ApiResponse.success("작업이 성공적으로 완료되었습니다.");
+    }
+
 }

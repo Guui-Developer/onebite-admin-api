@@ -4,18 +4,18 @@ import dev.onebite.admin.domain.CategoryGroup;
 import dev.onebite.admin.infra.enums.ErrorCode;
 import dev.onebite.admin.infra.repository.CategoryContentRepository;
 import dev.onebite.admin.infra.repository.CategoryGroupRepository;
-import dev.onebite.admin.persentation.dto.request.CreateCategoryGroupRequest;
-import dev.onebite.admin.persentation.dto.request.CreateCategoryRequest;
-import dev.onebite.admin.persentation.dto.request.DeleteCategoryGroupRequest;
-import dev.onebite.admin.persentation.dto.request.UpdateCategoryGroupCommand;
+import dev.onebite.admin.persentation.dto.request.*;
 import dev.onebite.admin.persentation.exception.ApplicationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -173,7 +173,7 @@ class CategoryGroupServiceTest {
         CategoryGroup categoryGroup = categoryGroupRepository.findByCode("groupCode1").get();
 
 
-        UpdateCategoryGroupCommand updateRequest = new UpdateCategoryGroupCommand(categoryGroup.getId(), "groupCode2", "test2", "iconUrl2", 2);
+        UpdateCategoryGroupCommand updateRequest = new UpdateCategoryGroupCommand(categoryGroup.getId(), "groupCode2", "test2", "iconUrl2");
         categoryGroupService.update(updateRequest);
 
         CategoryGroup updateGroup = categoryGroupRepository.findByCode("groupCode2").get();
@@ -181,7 +181,6 @@ class CategoryGroupServiceTest {
         assertThat(updateGroup.getCode()).isEqualTo("groupCode2");
         assertThat(updateGroup.getLabel()).isEqualTo("test2");
         assertThat(updateGroup.getIconUrl()).isEqualTo("iconUrl2");
-        assertThat(updateGroup.getDisplayOrder()).isEqualTo(2);
     }
 
 
@@ -192,7 +191,7 @@ class CategoryGroupServiceTest {
         categoryGroupService.create(request1);
 
         //given
-        UpdateCategoryGroupCommand request2 = new UpdateCategoryGroupCommand(9999L, "groupCode2", "label", "iconUrl", 1);
+        UpdateCategoryGroupCommand request2 = new UpdateCategoryGroupCommand(9999L, "groupCode2", "label", "iconUrl");
 
         //when and given
         assertThatThrownBy(() -> categoryGroupService.update(request2))
@@ -209,7 +208,7 @@ class CategoryGroupServiceTest {
         CategoryGroup categoryGroup = categoryGroupRepository.findByCode("groupCode1").get();
 
         //given
-        UpdateCategoryGroupCommand request2 = new UpdateCategoryGroupCommand(categoryGroup.getId(), "groupCode1", "label", "iconUrl", 1);
+        UpdateCategoryGroupCommand request2 = new UpdateCategoryGroupCommand(categoryGroup.getId(), "groupCode1", "label", "iconUrl");
 
         //when and given
         assertThatThrownBy(() -> categoryGroupService.update(request2))
@@ -272,6 +271,34 @@ class CategoryGroupServiceTest {
                 new DeleteCategoryGroupRequest(List.of(categoryGroup.getId()))))
                 .isInstanceOf(ApplicationException.class)
                 .hasMessage("하위 데이터가 존재하여 삭제할 수 없습니다.");
+    }
+
+    @Test
+    @DisplayName("순서 정렬 작업시 올바르게 동작하는지 확인한다.")
+    void reOrder() {
+        CreateCategoryGroupRequest request1 = new CreateCategoryGroupRequest("groupCode1", "test1", "iconUrl");
+        CreateCategoryGroupRequest request2 = new CreateCategoryGroupRequest("groupCode2", "test2", "iconUrl");
+        CreateCategoryGroupRequest request3 = new CreateCategoryGroupRequest("groupCode3", "test3", "iconUrl");
+        categoryGroupService.create(request1);
+        categoryGroupService.create(request2);
+        categoryGroupService.create(request3);
+
+        List<CategoryGroup> groups = categoryGroupRepository.findAll();
+
+        List<Long> originalIds = List.of(groups.get(0).getId(), groups.get(1).getId(), groups.get(2).getId());
+
+        List<Long> requestOrder = new ArrayList<>(originalIds);
+        Collections.reverse(requestOrder);
+
+
+        CategoryGroupReOrderRequest categoryGroupReOrderRequest = new CategoryGroupReOrderRequest(requestOrder);
+        categoryGroupService.reOrder(categoryGroupReOrderRequest);
+
+        List<CategoryGroup> result = categoryGroupRepository.findAll(Sort.by(Sort.Direction.DESC, "displayOrder"));
+
+        assertThat(result.get(0).getDisplayOrder()).isEqualTo(3);
+        assertThat(result.get(1).getDisplayOrder()).isEqualTo(2);
+        assertThat(result.get(2).getDisplayOrder()).isEqualTo(1);
     }
 
 }

@@ -107,14 +107,16 @@ public class Category extends BaseEntity {
                 .code(this.code)
                 .label(this.label)
                 .iconUrl(this.iconUrl)
-                .groupId(this.categoryGroup)
-                .displayOrder(this.displayOrder);
+                .groupId(this.categoryGroup);
     }
 
     public void edit(CategoryEditor editor) {
         this.code = editor.getCode();
         this.label = editor.getLabel();
         this.iconUrl = editor.getIconUrl();
-        this.displayOrder = editor.getDisplayOrder();
+    }
+
+    public void updateDisplayOrder(int order) {
+        this.displayOrder = order;
     }
 }

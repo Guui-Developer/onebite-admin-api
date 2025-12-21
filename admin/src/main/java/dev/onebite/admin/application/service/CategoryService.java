@@ -10,9 +10,7 @@ import dev.onebite.admin.infra.repository.CategoryGroupRepository;
 import dev.onebite.admin.infra.repository.CategoryRepository;
 import dev.onebite.admin.infra.repository.ContentRepository;
 import dev.onebite.admin.persentation.dto.CategoryDto;
-import dev.onebite.admin.persentation.dto.request.CreateCategoryRequest;
-import dev.onebite.admin.persentation.dto.request.DeleteCategoryRequest;
-import dev.onebite.admin.persentation.dto.request.UpdateCategoryCommand;
+import dev.onebite.admin.persentation.dto.request.*;
 import dev.onebite.admin.persentation.exception.ApplicationException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -77,7 +78,6 @@ public class CategoryService {
         categoryEditor.label(request.label());
         categoryEditor.iconUrl(request.iconUrl());
         categoryEditor.groupId(categoryGroup);
-        categoryEditor.displayOrder(request.displayOrder());
         category.edit(categoryEditor.build());
         categoryRepository.save(category);
     }
@@ -96,7 +96,7 @@ public class CategoryService {
 
         boolean hasContent = categoryContentRepository.existsByCategoryIds(categoryGroupIds);
 
-        if(hasContent){
+        if (hasContent) {
             throw new ApplicationException(ErrorCode.CATEGORY_HAS_CONTENT);
         }
 
@@ -112,5 +112,23 @@ public class CategoryService {
         }
 
         return categoryRepository.findAllDto(pageable);
+    }
+
+    @Transactional
+    public void reOrder(CategoryReOrderRequest request) {
+        List<Category> categories = categoryRepository.findByIdIn(request.categoryIds());
+
+        if (categories.isEmpty()) {
+            throw new ApplicationException(ErrorCode.ID_NOT_FOUND);
+        }
+
+        Map<Long, Category> categoryMap = categories.stream()
+                .collect(Collectors.toMap(Category::getId, Function.identity()));
+
+        for (int i = 0; i < request.categoryIds().size(); i++) {
+            Long id = request.categoryIds().get(i);
+            Category categoryId = categoryMap.get(id);
+            categoryId.updateDisplayOrder(i + 1);
+        }
     }
 }
