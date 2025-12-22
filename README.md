@@ -85,3 +85,19 @@ OneBite Admin API는 OneBite 서비스의 관리자 기능을 제공하는 API�
   - 기존 콘텐츠를 수정합니다.
 - `DELETE /content`
   - 하나 이상의 콘텐츠를 삭제합니다.
+
+## ❗ 에러 코드 정의
+
+| Error Code              | HTTP Status | Description                        |
+| ----------------------- | ----------- | ---------------------------------- |
+| `VALIDATION_ERROR`      | 400         | 필수 필드가 누락되었습니다.        |
+| `DUPLICATED_CODE`       | 400         | 중복된 필드입니다.                 |
+| `INVALID_CODE_LENGTH`   | 400         | 올바르지 않는 코드 길이입니다.     |
+| `CATEGORY_HAS_CONTENT`  | 400         | 하위 데이터가 존재하여 삭제할 수 없습니다. |
+| `ADMIN_LOGIN_FAIL`      | 401         | 아이디 또는 패스워드가 틀렸습니다. |
+| `CODE_NOT_FOUND`        | 404         | 존재하지 않는 카테고리 그룹입니다. |
+| `ID_NOT_FOUND`          | 404         | 올바르지 않는 아이디입니다.        |
+| `DELETE_DATA_NOT_FOUND` | 404         | 삭제할 대상이 존재하지 않습니다.   |
+| `CONTENT_NOT_FOUND`     | 404         | 존재하지 않는 컨텐츠입니다.        |
+| `AWS_ERROR`             | 500         | AWS 관련 오류가 발생했습니다.      |
+
