@@ -6,7 +6,9 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -57,13 +59,20 @@ public class Content extends BaseEntity {
     @Column(name = "bookmarks", columnDefinition = "int4 default 0")
     private Integer bookmarks;
 
+    @Column(name = "language", length = 30)
+    private String language;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json")
+    private List<String> tails = new ArrayList<>();
+
     @Column(name = "is_active", nullable = false, columnDefinition = "boolean default true")
     private Boolean isActive = true;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    private Content(String type, String title, String code, String description, String answer, String beforeCode, String afterCode, String feedback, String imageUrl, String questionText) {
+    private Content(String type, String title, String code, String description, String answer, String beforeCode, String afterCode, String feedback, String imageUrl, String questionText, String language, List<String> tails) {
         this.type = type;
         this.title = title;
         this.code = code;
@@ -74,12 +83,14 @@ public class Content extends BaseEntity {
         this.feedback = feedback;
         this.imageUrl = imageUrl;
         this.questionText = questionText;
+        this.language = language;
+        this.tails = tails;
         this.views = 0;
         this.bookmarks = 0;
     }
 
-    public static Content of(String type, String title, String code, String description, String answer, String beforeCode, String afterCode, String feedback, String imageUrl, String questionText) {
-        return new Content(type, title, code, description, answer, beforeCode, afterCode, feedback, imageUrl, questionText);
+    public static Content of(String type, String title, String code, String description, String answer, String beforeCode, String afterCode, String feedback, String imageUrl, String questionText, String language, List<String> tails) {
+        return new Content(type, title, code, description, answer, beforeCode, afterCode, feedback, imageUrl, questionText, language, tails);
     }
 
     public ContentEditor.ContentEditorBuilder toEditor() {
@@ -93,7 +104,9 @@ public class Content extends BaseEntity {
                 .afterCode(this.afterCode)
                 .feedback(this.feedback)
                 .imageUrl(this.imageUrl)
-                .questionText(this.questionText);
+                .questionText(this.questionText)
+                .language(this.language)
+                .tails(this.tails);
     }
 
 
@@ -108,5 +121,7 @@ public class Content extends BaseEntity {
         this.feedback = editor.getFeedback();
         this.imageUrl = editor.getImageUrl();
         this.questionText = editor.getQuestionText();
+        this.language = editor.getLanguage();
+        this.tails = editor.getTails();
     }
 }

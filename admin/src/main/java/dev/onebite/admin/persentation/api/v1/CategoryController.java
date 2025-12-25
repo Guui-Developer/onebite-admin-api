@@ -35,7 +35,7 @@ public class CategoryController {
 
     @PutMapping("/categories/{categoryId}")
     public ApiResponse<Void> updateCategory(@PathVariable Long categoryId, UpdateCategoryRequest request) {
-        var updateRequest = new UpdateCategoryCommand(categoryId, request.code(), request.label(), request.categoryGroupId(), request.iconUrl(), request.displayOrder());
+        var updateRequest = new UpdateCategoryCommand(categoryId, request.code(), request.label(), request.categoryGroupId(), request.iconUrl());
         categoryService.update(updateRequest);
         return ApiResponse.success("작업이 성공적으로 완료되었습니다.");
     }

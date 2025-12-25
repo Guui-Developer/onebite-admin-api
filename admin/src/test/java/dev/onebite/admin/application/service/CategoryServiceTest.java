@@ -204,7 +204,7 @@ class CategoryServiceTest {
         Category category = categoryRepository.findByCode("code1").get();
 
 
-        UpdateCategoryCommand updateRequest = new UpdateCategoryCommand(category.getId(), "code2", "test2", categoryGroup.getId(), "iconUrl2", 2);
+        UpdateCategoryCommand updateRequest = new UpdateCategoryCommand(category.getId(), "code2", "test2", categoryGroup.getId(), "iconUrl2");
         categoryService.update(updateRequest);
 
         Category updateCategory = categoryRepository.findByCode("code2").get();
@@ -222,7 +222,7 @@ class CategoryServiceTest {
         categoryService.create(request1);
 
         //given
-        UpdateCategoryCommand request2 = new UpdateCategoryCommand(9999L, "code2", "label", categoryGroup.getId(), "url1", 1);
+        UpdateCategoryCommand request2 = new UpdateCategoryCommand(9999L, "code2", "label", categoryGroup.getId(), "url1");
 
         //when and given
         assertThatThrownBy(() -> categoryService.update(request2))
@@ -234,15 +234,17 @@ class CategoryServiceTest {
     @DisplayName("수정 시 다른 카테고리의 코드와 중복될 경우 예외가 발생하는지 테스트한다.")
     void updateDuplicatedCode() {
         CreateCategoryRequest request1 = new CreateCategoryRequest(categoryGroup.getId(), "code1", "test", "iconUrl", "des1");
+        CreateCategoryRequest request2 = new CreateCategoryRequest(categoryGroup.getId(), "code2", "test2", "iconUrl2", "des2");
         categoryService.create(request1);
+        categoryService.create(request2);
 
         Category category = categoryRepository.findByCode("code1").get();
 
         //given
-        UpdateCategoryCommand request2 = new UpdateCategoryCommand(category.getId(), "code1", "label", categoryGroup.getId(), "iconUrl", 1);
+        UpdateCategoryCommand request3 = new UpdateCategoryCommand(category.getId(), "code2", "label", categoryGroup.getId(), "iconUrl");
 
         //when and given
-        assertThatThrownBy(() -> categoryService.update(request2))
+        assertThatThrownBy(() -> categoryService.update(request3))
                 .isInstanceOf(ApplicationException.class)
                 .hasMessage(ErrorCode.DUPLICATED_CODE.getMessage());
     }
@@ -297,7 +299,8 @@ class CategoryServiceTest {
 
         Content content = Content.of(
                 "QUIZ", "삭제될 제목", "code", "desc", "answer",
-                null, null, null, null, null
+                null, null, null, null, null,"java"
+                , List.of("CODE","CODE2")
         );
         contentRepository.save(content);
 

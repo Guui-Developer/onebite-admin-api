@@ -14,6 +14,8 @@ public record UpdateContentCommand(
         String feedback,
         String imageUrl,
         String questionText,
-        List<String> tags
+        String language,
+        List<String> tags,
+        List<String> tails
 ) {
 }

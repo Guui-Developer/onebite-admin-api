@@ -15,22 +15,21 @@ public record CreateContentRequest(
         @NotBlank(message = "제목은 필수입니다")
         @Size(max = 50, message = "제목은 50자 이하여야 합니다")
         String title,
-
         String code,
         String description,
         String answer,
-        String beforeCode,
-        String afterCode,
+        String before,
+        String after,
         String feedback,
-
         @Pattern(
                 regexp = "^(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?$",
                 message = "올바른 URL 형식이 아닙니다"
         )
         @Size(max = 500, message = "이미지 URL은 500자 이하여야 합니다")
-        String imageUrl,
-
+        String image,
         String question,
-        List<String> tags
+        String language,
+        List<String> tags,
+        List<String> tails
 ) {
 }

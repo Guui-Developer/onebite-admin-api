@@ -1,5 +1,6 @@
 package dev.onebite.admin.application.service;
 
+import dev.onebite.admin.application.dto.content.ContentDto;
 import dev.onebite.admin.domain.Category;
 import dev.onebite.admin.domain.CategoryContent;
 import dev.onebite.admin.domain.Content;
@@ -8,7 +9,6 @@ import dev.onebite.admin.infra.enums.ErrorCode;
 import dev.onebite.admin.infra.repository.CategoryContentRepository;
 import dev.onebite.admin.infra.repository.CategoryRepository;
 import dev.onebite.admin.infra.repository.ContentRepository;
-import dev.onebite.admin.persentation.dto.ContentDto;
 import dev.onebite.admin.persentation.dto.request.CreateContentRequest;
 import dev.onebite.admin.persentation.dto.request.DeleteContentRequest;
 import dev.onebite.admin.persentation.dto.request.UpdateContentCommand;
@@ -37,21 +37,22 @@ public class ContentService {
     @Transactional(readOnly = true)
     public Page<@NonNull ContentDto> findContents(String keyword, Pageable pageable) {
 
-        Page<ContentDto> contentPage;
+        Page<Content> contentEntities;
 
         if (StringUtils.hasText(keyword)) {
-            String searchKeyword = "%" + keyword + "%";
-            contentPage = contentRepository.searchDto(searchKeyword, pageable);
+            contentEntities = contentRepository.findByTitleContaining(keyword, pageable);
         } else {
-            contentPage = contentRepository.findAllDto(pageable);
+            contentEntities = contentRepository.findAll(pageable);
         }
 
-        if (contentPage.isEmpty()) {
-            return contentPage;
+        if (contentEntities.isEmpty()) {
+            return Page.empty(pageable);
         }
+
+        Page<ContentDto> contentPage = contentEntities.map(ContentDto::from);
 
         List<Long> contentIds = contentPage.getContent().stream()
-                .map(ContentDto::getContentId)
+                .map(ContentDto::getId)
                 .toList();
 
         List<CategoryContent> foundContentList = categoryContentRepository.findAllByContentIdIn(contentIds);
@@ -66,7 +67,7 @@ public class ContentService {
                 ));
 
         contentPage.getContent().forEach(dto -> {
-            dto.assignTags(categoryMap.getOrDefault(dto.getContentId(), Collections.emptyList()));
+            dto.assignTags(categoryMap.getOrDefault(dto.getId(), Collections.emptyList()));
         });
 
         return contentPage;
@@ -81,11 +82,13 @@ public class ContentService {
                 request.code(),
                 request.description(),
                 request.answer(),
-                request.beforeCode(),
-                request.afterCode(),
+                request.before(),
+                request.after(),
                 request.feedback(),
-                request.imageUrl(),
-                request.question()
+                request.image(),
+                request.question(),
+                request.language(),
+                request.tails()
         );
 
         Content savedContent = contentRepository.save(content);
@@ -119,6 +122,8 @@ public class ContentService {
                 .feedback(request.feedback())
                 .imageUrl(request.imageUrl())
                 .questionText(request.questionText())
+                .language(request.language())
+                .tails(request.tails())
                 .build();
 
         content.edit(contentEditor);

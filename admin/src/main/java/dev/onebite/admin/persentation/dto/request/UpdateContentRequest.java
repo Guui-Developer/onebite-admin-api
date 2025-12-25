@@ -31,6 +31,8 @@ public record UpdateContentRequest(
         String imageUrl,
 
         String question,
-        List<String> tags
+        String language,
+        List<String> tags,
+        List<String> tails
 ) {
 }

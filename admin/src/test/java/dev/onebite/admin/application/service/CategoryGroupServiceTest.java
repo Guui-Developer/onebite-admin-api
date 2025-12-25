@@ -203,15 +203,17 @@ class CategoryGroupServiceTest {
     @DisplayName("수정 시 다른 그룹의 코드와 중복될 경우 예외가 발생하는지 테스트한다.")
     void updateDuplicatedCode() {
         CreateCategoryGroupRequest request1 = new CreateCategoryGroupRequest("groupCode1", "test", "iconUrl");
+        CreateCategoryGroupRequest request2 = new CreateCategoryGroupRequest("groupCode2", "test2", "iconUrl2");
         categoryGroupService.create(request1);
+        categoryGroupService.create(request2);
 
         CategoryGroup categoryGroup = categoryGroupRepository.findByCode("groupCode1").get();
 
         //given
-        UpdateCategoryGroupCommand request2 = new UpdateCategoryGroupCommand(categoryGroup.getId(), "groupCode1", "label", "iconUrl");
+        UpdateCategoryGroupCommand request3 = new UpdateCategoryGroupCommand(categoryGroup.getId(), "groupCode2", "label", "iconUrl");
 
         //when and given
-        assertThatThrownBy(() -> categoryGroupService.update(request2))
+        assertThatThrownBy(() -> categoryGroupService.update(request3))
                 .isInstanceOf(ApplicationException.class)
                 .hasMessage(ErrorCode.DUPLICATED_CODE.getMessage());
     }

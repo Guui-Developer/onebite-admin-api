@@ -62,7 +62,7 @@ public class CategoryService {
     @Transactional
     public void update(UpdateCategoryCommand request) {
 
-        if (categoryRepository.existsByCode(request.code())) {
+        if (categoryRepository.existsByCodeAndIdNot(request.code(), request.id())) {
             throw new ApplicationException(ErrorCode.DUPLICATED_CODE);
         }
 

@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
@@ -31,7 +33,9 @@ class ContentRepositoryTest {
                 "이후 코드",
                 "피드백",
                 "https://example.com/image.jpg",
-                "질문 내용"
+                "질문 내용",
+                "java",
+                List.of("CODE","CODE2")
         );
 
         // when

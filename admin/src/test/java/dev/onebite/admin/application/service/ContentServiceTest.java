@@ -1,5 +1,6 @@
 package dev.onebite.admin.application.service;
 
+import dev.onebite.admin.application.dto.content.ContentDto;
 import dev.onebite.admin.domain.Category;
 import dev.onebite.admin.domain.CategoryGroup;
 import dev.onebite.admin.domain.Content;
@@ -8,7 +9,6 @@ import dev.onebite.admin.infra.repository.CategoryContentRepository;
 import dev.onebite.admin.infra.repository.CategoryGroupRepository;
 import dev.onebite.admin.infra.repository.CategoryRepository;
 import dev.onebite.admin.infra.repository.ContentRepository;
-import dev.onebite.admin.persentation.dto.ContentDto;
 import dev.onebite.admin.persentation.dto.request.CreateContentRequest;
 import dev.onebite.admin.persentation.dto.request.DeleteContentRequest;
 import dev.onebite.admin.persentation.dto.request.UpdateContentCommand;
@@ -78,7 +78,7 @@ class ContentServiceTest {
     private Content createDummyContent(String title, String type) {
         return Content.of(
                 type, title, "code", "desc", "answer",
-                null, null, null, null, null
+                null, null, null, null, null,"java", List.of("CODE","CODE2")
         );
     }
 
@@ -98,7 +98,9 @@ class ContentServiceTest {
                 "피드백",
                 "https://example.com/image.jpg",
                 "질문 내용",
-                List.of(savedCategory.getCode())
+                "java",
+                List.of(savedCategory.getCode()),
+                List.of("CODE","CODE2")
         );
 
         // when
@@ -117,7 +119,8 @@ class ContentServiceTest {
     void createContent_checkAuditing() {
         // given
         CreateContentRequest request = new CreateContentRequest(
-                "QUIZ", "제목", "코드", "설명", "정답", null, null, null, null, "질문", List.of(savedCategory.getCode())
+                "QUIZ", "제목", "코드", "설명", "정답", null, null, null, null, "질문", "java",List.of(savedCategory.getCode())
+        , List.of("CODE","CODE2")
         );
 
         // when
@@ -138,9 +141,9 @@ class ContentServiceTest {
     void getContents() {
         // given
         contentRepository.saveAll(List.of(
-                createDummyContent("Title 1", "QUIZ"),
-                createDummyContent("Title 2", "CODE"),
-                createDummyContent("Title 3", "QUIZ")
+                createDummyContent("Title 1", "code_review"),
+                createDummyContent("Title 2", "bug_challenge"),
+                createDummyContent("Title 3", "code_tip")
         ));
 
         PageRequest pageRequest = PageRequest.of(0, 5);
@@ -182,7 +185,9 @@ class ContentServiceTest {
                 "old after",
                 "old feedback",
                 "https://old.com",
-                "원래 질문"
+                "원래 질문",
+                "java",
+                List.of("CODE","CODE2")
         );
         contentRepository.save(original);
 
@@ -198,7 +203,9 @@ class ContentServiceTest {
                 "new feedback",
                 "https://new.com",
                 "수정된 질문",
-                List.of(savedCategory.getCode())
+                "java",
+                List.of(savedCategory.getCode()),
+                List.of("CODE","CODE2")
         );
 
         // when
@@ -228,7 +235,9 @@ class ContentServiceTest {
                 "설명",
                 "정답",
                 null, null, null, null, null,
-                List.of(savedCategory.getCode())
+                "java",
+                List.of(savedCategory.getCode()),
+                List.of("CODE","CODE2")
         );
 
         // when & then
@@ -254,7 +263,9 @@ class ContentServiceTest {
                 "원래 이후코드",
                 "원래 피드백",
                 "https://original.com",
-                "원래 질문"
+                "원래 질문",
+                "java",
+                List.of("CODE","CODE2")
         );
         contentRepository.save(original);
 
@@ -270,7 +281,9 @@ class ContentServiceTest {
                 "수정된 피드백!!!",         // [변경]
                 original.getImageUrl(),   // 유지
                 original.getQuestionText(),// 유지
-                List.of(savedCategory.getCode())
+                "java",
+                List.of(savedCategory.getCode()),
+                List.of("CODE","CODE2")
         );
 
         // when
@@ -291,7 +304,8 @@ class ContentServiceTest {
         // given
         Content content = Content.of(
                 "QUIZ", "삭제될 제목", "code", "desc", "answer",
-                null, null, null, null, null
+                null, null, null, null, null,
+                "java", List.of("CODE","CODE2")
         );
         contentRepository.save(content);
         Long targetId = content.getId();
@@ -311,7 +325,8 @@ class ContentServiceTest {
         // given
         Content survivor = Content.of(
                 "QUIZ", "생존자", "code", "desc", "answer",
-                null, null, null, null, null
+                null, null, null, null, null,
+                "java", List.of("CODE","CODE2")
         );
         contentRepository.save(survivor);
 
@@ -329,13 +344,15 @@ class ContentServiceTest {
         // given
         Content target = Content.of(
                 "QUIZ", "삭제될 녀석", "code", "desc", "answer",
-                null, null, null, null, null
+                null, null, null, null, null,
+                "java", List.of("CODE","CODE2")
         );
         Content saved = contentRepository.save(target);
 
         Content survivor = Content.of(
                 "QUIZ", "생존할 녀석", "code", "desc", "answer",
-                null, null, null, null, null
+                null, null, null, null, null,
+                "java", List.of("CODE","CODE2")
         );
         contentRepository.save(survivor);
 
@@ -355,10 +372,10 @@ class ContentServiceTest {
     void getContents_filterByType() {
 
         // given
-        contentRepository.save(createDummyContent("JAVA Basic", "QUIZ"));
-        contentRepository.save(createDummyContent("JAVA Advanced", "CODE"));
+        contentRepository.save(createDummyContent("JAVA Basic", "code_review"));
+        contentRepository.save(createDummyContent("JAVA Advanced", "code_tip"));
 
-        contentRepository.save(createDummyContent("PYTHON Basic", "QUIZ"));
+        contentRepository.save(createDummyContent("PYTHON Basic", "code_review"));
 
         // when
         Page<ContentDto> result = contentService.findContents("JAVA", PageRequest.of(0, 10));
@@ -375,7 +392,8 @@ class ContentServiceTest {
     void createContent_defaultCounters() {
         CreateContentRequest request = new CreateContentRequest(
                 "QUIZ", "제목", "코드", "설명", "정답",
-                null, null, null, null, null, List.of(savedCategory.getCode())
+                null, null, null, null, null,"java", List.of(savedCategory.getCode())
+        , List.of("CODE","CODE2")
         );
 
         // when
@@ -394,7 +412,8 @@ class ContentServiceTest {
         // given
         CreateContentRequest request = new CreateContentRequest(
                 "QUIZ", "제목", "코드", "설명", "정답",
-                null, null, null, null, null, List.of(savedCategory.getCode())
+                null, null, null, null, null,"java", List.of(savedCategory.getCode())
+        , List.of("CODE","CODE2")
         );
 
         // when
@@ -413,7 +432,7 @@ class ContentServiceTest {
     @DisplayName("페이지 크기만큼 콘텐츠가 조회된다")
     void getContents_withPagination() {
         for (int i = 1; i <= 10; i++) {
-            contentRepository.save(createDummyContent("Title " + i, "QUIZ"));
+            contentRepository.save(createDummyContent("Title " + i, "code_review"));
         }
 
         int pageSize = 3;
@@ -433,7 +452,7 @@ class ContentServiceTest {
     void getContents_lastPage() {
         // given
         for (int i = 1; i <= 10; i++) {
-            contentRepository.save(createDummyContent("Title " + i, "QUIZ"));
+            contentRepository.save(createDummyContent("Title " + i, "code_review"));
         }
 
         int pageSize = 3;

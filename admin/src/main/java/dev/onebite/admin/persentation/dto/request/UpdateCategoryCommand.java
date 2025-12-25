@@ -5,6 +5,5 @@ public record UpdateCategoryCommand(
         String code,
         String label,
         Long categoryGroupId,
-        String iconUrl,
-        int displayOrder) {
+        String iconUrl) {
 }

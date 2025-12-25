@@ -60,7 +60,7 @@ public class CategoryGroupService {
         CategoryGroup categoryGroup = categoryGroupRepository.findById(request.groupId())
                 .orElseThrow(() -> new ApplicationException(ErrorCode.ID_NOT_FOUND));
 
-        if (categoryGroupRepository.existsByCode(request.groupCode())) {
+        if (categoryGroupRepository.existsByCodeAndIdNot(request.groupCode(), request.groupId())) {
             throw new ApplicationException(ErrorCode.DUPLICATED_CODE);
         }
 

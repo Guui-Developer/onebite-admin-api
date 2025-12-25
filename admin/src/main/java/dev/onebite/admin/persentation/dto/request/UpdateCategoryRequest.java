@@ -4,7 +4,6 @@ public record UpdateCategoryRequest(
         Long categoryGroupId,
         String code,
         String label,
-        String iconUrl,
-        int displayOrder
+        String iconUrl
 ) {
 }

@@ -3,6 +3,8 @@ package dev.onebite.admin.domain;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 @Builder
 public class ContentEditor {
@@ -16,4 +18,6 @@ public class ContentEditor {
     private String feedback;
     private String imageUrl;
     private String questionText;
+    private String language;
+    private List<String> tails;
 }

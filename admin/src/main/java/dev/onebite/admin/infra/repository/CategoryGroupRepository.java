@@ -22,6 +22,8 @@ public interface CategoryGroupRepository extends JpaRepository<@NonNull Category
 
     boolean existsByCode(String code);
 
+    boolean existsByCodeAndIdNot(String code, Long id);
+
     Optional<CategoryGroup> findByCode(String code);
 
     List<CategoryGroup> findByIdIn(Collection<Long> ids);

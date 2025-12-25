@@ -1,8 +1,8 @@
 package dev.onebite.admin.persentation.api.v1;
 
 
+import dev.onebite.admin.application.dto.content.ContentDto;
 import dev.onebite.admin.application.service.ContentService;
-import dev.onebite.admin.persentation.dto.ContentDto;
 import dev.onebite.admin.persentation.dto.request.*;
 import dev.onebite.admin.persentation.dto.response.PageResponse;
 import jakarta.validation.Valid;
@@ -48,7 +48,9 @@ public class ContentController {
                 request.feedback(),
                 request.imageUrl(),
                 request.question(),
-                request.tags()
+                request.language(),
+                request.tags(),
+                request.tails()
         );
         contentService.update(command);
         return ApiResponse.success("작업이 성공적으로 완료되었습니다.");
