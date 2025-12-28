@@ -23,36 +23,40 @@ repositories {
 }
 
 dependencies {
+    // 1. AWS Lambda & Spring Boot Core
     implementation("com.amazonaws.serverless:aws-serverless-java-container-springboot3:2.1.5")
     implementation("org.springframework.boot:spring-boot-starter-web") {
         exclude(group = "org.springframework.boot", module = "spring-boot-starter-tomcat")
     }
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-security")
 
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    runtimeOnly("org.postgresql:postgresql")
+    // 2. Spring Cloud AWS - BOM 먼저 추가
+    implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.2.1"))
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-secrets-manager")  // ✅ 수정됨
 
+    // 3. AWS SDK v2
     implementation(platform("software.amazon.awssdk:bom:2.29.0"))
     implementation("software.amazon.awssdk:secretsmanager")
+    implementation("software.amazon.awssdk:rds")
 
+    // 4. DB & Utils
+    runtimeOnly("org.postgresql:postgresql")
+    compileOnly("org.projectlombok:lombok")
+    annotationProcessor("org.projectlombok:lombok")
+
+    // JWT
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
-    // Spring Security (핵심 라이브러리)
-    implementation("org.springframework.boot:spring-boot-starter-security")
-
-    // Security Test (테스트용, 선택사항이지만 권장)
-    testImplementation("org.springframework.security:spring-security-test")
-
-    // 로컬/테스트용 H2
+    // 5. Test & Local
     runtimeOnly("com.h2database:h2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
-
 // BootJar (뚱뚱한 Jar) 끄기
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     enabled = false

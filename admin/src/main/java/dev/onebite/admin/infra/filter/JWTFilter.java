@@ -45,13 +45,11 @@ public class JWTFilter extends OncePerRequestFilter {
 
                     long remainingTime = jwtTokenProvider.getRemainingTime(token, keyString);
 
-                    if (remainingTime < 1000 * 60 * 5) { // 5분 미만 남았으면
+                    if (remainingTime < 1000 * 60 * 5) {
                         log.info("토큰 만료가 5분 미만으로 남았습니다. 자동으로 재발급합니다.");
 
-                        // 새 토큰(AuthToken) 생성
                         AuthToken newAuthToken = jwtTokenProvider.createAccessToken(adminId, keyString);
 
-                        // 응답 헤더에 추가 (클라이언트가 이걸 보고 갈아끼워야 함)
                         response.setHeader("Authorization-Update", newAuthToken.accessToken());
                     }
                 }

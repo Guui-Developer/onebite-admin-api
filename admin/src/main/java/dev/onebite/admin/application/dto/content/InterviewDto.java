@@ -24,7 +24,7 @@ public class InterviewDto extends ContentDto {
         InterviewDto dto = new InterviewDto(
                 content.getQuestionText(),
                 content.getAnswer(),
-                List.of()
+                content.getTails()
         );
         dto.id = content.getId();
         dto.type = "interview";

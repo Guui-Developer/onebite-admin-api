@@ -63,7 +63,6 @@ public class Content extends BaseEntity {
     private String language;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json")
     private List<String> tails = new ArrayList<>();
 
     @Column(name = "is_active", nullable = false, columnDefinition = "boolean default true")
