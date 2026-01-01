@@ -21,10 +21,7 @@ public record CreateContentRequest(
         String before,
         String after,
         String feedback,
-        @Pattern(
-                regexp = "^(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?$",
-                message = "올바른 URL 형식이 아닙니다"
-        )
+
         @Size(max = 500, message = "이미지 URL은 500자 이하여야 합니다")
         String image,
         String question,

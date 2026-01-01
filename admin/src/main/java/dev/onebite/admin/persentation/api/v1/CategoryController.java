@@ -2,7 +2,6 @@ package dev.onebite.admin.persentation.api.v1;
 
 import dev.onebite.admin.application.service.CategoryService;
 import dev.onebite.admin.persentation.dto.CategoryDto;
-import dev.onebite.admin.persentation.dto.CategoryGroupDto;
 import dev.onebite.admin.persentation.dto.request.*;
 import dev.onebite.admin.persentation.dto.response.PageResponse;
 import lombok.NonNull;
@@ -34,7 +33,8 @@ public class CategoryController {
     }
 
     @PutMapping("/categories/{categoryId}")
-    public ApiResponse<Void> updateCategory(@PathVariable Long categoryId, UpdateCategoryRequest request) {
+    public ApiResponse<Void> updateCategory(@PathVariable Long categoryId,
+                                            @RequestBody UpdateCategoryRequest request) {
         var updateRequest = new UpdateCategoryCommand(categoryId, request.code(), request.label(), request.categoryGroupId(), request.iconUrl());
         categoryService.update(updateRequest);
         return ApiResponse.success("작업이 성공적으로 완료되었습니다.");
